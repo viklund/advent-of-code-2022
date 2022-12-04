@@ -26,6 +26,9 @@ my @contestants = ();
 my %at = ();
 
 for my $m ( values %$json ) {
+    if ($m->{local_score} == 0) {
+        next;
+    }
     $num_contestants++;
     my $name = $m->{name} // $m->{id};
     push @contestants, $name;
