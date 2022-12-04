@@ -1,11 +1,7 @@
 #lang racket
 
-
-(define file-contents
-  (port->string (open-input-file "02.input") #:close? #t))
-
-(define (sum l)
-  (foldl + 0 l))
+(require "util.rkt")
+(define f "02.input")
 
 (define (rock? a)
   (or (string=? a "A") (string=? a "X")))
@@ -32,12 +28,10 @@
     [else 0]))
 
 
-(displayln (sum (map (lambda (l) 
-                       (let* ([n (string-split l " ")]
-                              [f (list-ref n 0)]
-                              [l (list-ref n 1)])
-                         (+ (value l) (score f l))))
-                     (string-split file-contents "\n"))))
+(sum (map (lambda (l) 
+            (match-let ([(list f l) (string-split l " ")])
+                       (+ (value l) (score f l))))
+          (by-line (file-contents f))))
 
 (define (outcome x)
   (cond
@@ -60,9 +54,7 @@
     [(and (scissor? other) (eq? outcome 'win)) 7]
     ))
 
-(displayln (sum (map (lambda (l)
-                       (let* ([n (string-split l " ")]
-                              [f (list-ref n 0)]
-                              [l (list-ref n 1)])
-                         (scorep f (outcome l))))
-                     (string-split file-contents "\n"))))
+(map (lambda (l)
+       (match-let ([(list f l) (string-split l " ")])
+                  (scorep f (outcome l))))
+     (by-line (file-contents f)))

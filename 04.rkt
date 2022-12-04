@@ -1,13 +1,7 @@
 #lang racket
 
-
-(define file-contents
-  (port->string (open-input-file "04.input") #:close? #t))
-
-(define (by-line f) (string-split f "\n"))
-
-(define (sum l)
-  (foldl + 0 l))
+(require "util.rkt")
+(define f "04.input")
 
 
 (struct segment (start stop))
@@ -43,5 +37,5 @@
                [else #f])))
 
 
-(length (filter identity (map (compose contains parse-line) (by-line file-contents))))
-(length (filter identity (map (compose overlaps parse-line) (by-line file-contents))))
+(length (filter identity (map (compose contains parse-line) (by-line (file-contents f)))))
+(length (filter identity (map (compose overlaps parse-line) (by-line (file-contents f)))))

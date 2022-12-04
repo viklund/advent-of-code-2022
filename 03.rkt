@@ -1,11 +1,7 @@
 #lang racket
 
-
-(define file-contents
-  (port->string (open-input-file "03.input") #:close? #t))
-
-(define (sum l)
-  (foldl + 0 l))
+(require "util.rkt")
+(define f "03.input")
 
 ; "A" => 65
 ; "a" => 97
@@ -22,14 +18,13 @@
            [b (drop x n)]) 
       (list a b)))
 
-(displayln
-  (sum (map (lambda (x)
-              (let* ([d (split-middle x)]
-                     [a (remove-duplicates (car d))]
-                     [b (remove-duplicates (cadr d))])
-                (check-duplicates (append a b)))) 
-            (map string->charl
-                 (string-split file-contents "\n")))))
+(sum (map (lambda (x)
+            (let* ([d (split-middle x)]
+                   [a (remove-duplicates (car d))]
+                   [b (remove-duplicates (cadr d))])
+              (check-duplicates (append a b)))) 
+          (map string->charl
+               (by-line (file-contents f)))))
 
 (define (by-threes l)
   (if (empty? l) '()
@@ -43,7 +38,6 @@
       look-for
       (_inner (car list) (cdr list)))))
 
-(displayln
-  (sum (map (lambda (tripple)
-              (check-tripplicates (flatten (map remove-duplicates tripple))))
-            (by-threes (map string->charl (string-split file-contents "\n"))))))
+(sum (map (lambda (tripple)
+            (check-tripplicates (flatten (map remove-duplicates tripple))))
+          (by-threes (map string->charl (by-line (file-contents f))))))
