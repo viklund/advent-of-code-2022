@@ -7,16 +7,17 @@
 (define (sum l)
   (foldl + 0 l))
 
-(displayln (foldl (lambda (a b) (if (> a b) a b))
-                0
-                (map (lambda (l)
-                       (sum (map (lambda (n) (string->number n)) 
-                                       (string-split l "\n"))))
-                     (string-split file-contents "\n\n"))))
+(define (by-section f) (string-split f "\n\n"))
+(define (by-line f) (string-split f "\n"))
 
-(displayln (sum (take (sort (map (lambda (l)
-                              (foldl + 0 (map (lambda (n) (string->number n)) 
-                                              (string-split l "\n"))))
-                            (string-split file-contents "\n\n"))
-                       >)
-                 3)))
+(define (biggest l)
+  (foldl (lambda (a b) (if (> a b) a b)) 0 l))
+
+(define (sum-section s)
+  (sum (map string->number (by-line s))))
+
+(biggest (map sum-section (by-section file-contents)))
+
+(sum (take (sort (map sum-section (by-section file-contents))
+                 >)
+           3))
