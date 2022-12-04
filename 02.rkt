@@ -2,7 +2,7 @@
 
 
 (define file-contents
-  (port->string (open-input-file "2.input") #:close? #t))
+  (port->string (open-input-file "02.input") #:close? #t))
 
 (define (sum l)
   (foldl + 0 l))
