@@ -38,60 +38,40 @@
 ;          '(M C D)
 ;          '(P))))
 
-;(define (move order s)
-;  (match-let* ([(list m number-s f from-ns t to-ns) (string-split order " ")]
-;               [from-n                          (- (string->number from-ns) 1)]
-;               [to-n                            (- (string->number to-ns) 1)]
-;               [number                          (string->number number-s)]
-;               [from                            (list-ref s from-n)]
-;               [to                              (list-ref s to-n)]
-;               [(list elems-move from-new)      (split-at from number)]
-;               [to-new                          (append elems-move to)])
-;              (list-set 
-;                (list-set s from-n from-new)
-;                to-n to-new)))
+(struct move (number from to))
 
-(define (move order s)
-  (match-let* ([(list m number-s f from-ns t to-ns) (string-split order " ")]
-               [from-n                          (- (string->number from-ns) 1)]
-               [to-n                            (- (string->number to-ns) 1)]
-               [number                          (string->number number-s)]
-               [from                            (list-ref s from-n)]
-               [to                              (list-ref s to-n)]
-               [elems-move                      (take from number)]
-               [from-new                        (drop from number)]
+(define (parse-line s)
+  (match-let* ([(list m number-s f from-ns t to-ns) (string-split s " ")]
+               [from-n                              (- (string->number from-ns) 1)]
+               [to-n                                (- (string->number to-ns) 1)]
+               [number                              (string->number number-s)])
+             (move number from-n to-n)))
+
+(define (make-move m s)
+  (match-let* ([from                            (list-ref s (move-from m))]
+               [to                              (list-ref s (move-to m))]
+               [elems-move                      (take from (move-number m))]
+               [from-new                        (drop from (move-number m))]
                [to-new                          (append (reverse elems-move) to)])
               (list-set 
-                (list-set s from-n from-new)
-                to-n to-new)))
+                (list-set s (move-from m) from-new)
+                (move-to m) to-new)))
 
-(define (move2 order s)
-  (match-let* ([(list m number-s f from-ns t to-ns) (string-split order " ")]
-               [from-n                          (- (string->number from-ns) 1)]
-               [to-n                            (- (string->number to-ns) 1)]
-               [number                          (string->number number-s)]
-               [from                            (list-ref s from-n)]
-               [to                              (list-ref s to-n)]
-               [elems-move                      (take from number)]
-               [from-new                        (drop from number)]
+(define (make-move2 m s)
+  (match-let* ([from                            (list-ref s (move-from m))]
+               [to                              (list-ref s (move-to m))]
+               [elems-move                      (take from (move-number m))]
+               [from-new                        (drop from (move-number m))]
                [to-new                          (append elems-move to)])
               (list-set 
-                (list-set s from-n from-new)
-                to-n to-new)))
-;(match-let ([(list stacks orders) (by-section (file-contents f))])
-;    orders)
+                (list-set s (move-from m) from-new)
+                (move-to m) to-new)))
 
-;(move stacks)
-
-;(move "" stacks)
-;stacks
-;(move "move 1 from 2 to 1" stacks)
-;(move "move 3 from 1 to 3" (move "move 1 from 2 to 1" stacks))
-;move 2 from 2 to 1
-;move 1 from 1 to 2
+(define (stringify l)
+  (foldr string-append "" (map symbol->string l)))
 
 (match-let ([(list s orders) (by-section (file-contents f))])
-    (map car (foldl move stacks (by-line orders))))
+    (stringify (map car (foldl make-move stacks (map parse-line (by-line orders))))))
 
 (match-let ([(list s orders) (by-section (file-contents f))])
-    (map car (foldl move2 stacks (by-line orders))))
+    (stringify (map car (foldl make-move2 stacks (map parse-line (by-line orders))))))
