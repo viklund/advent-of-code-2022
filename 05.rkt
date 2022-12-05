@@ -65,6 +65,19 @@
                 (list-set s from-n from-new)
                 to-n to-new)))
 
+(define (move2 order s)
+  (match-let* ([(list m number-s f from-ns t to-ns) (string-split order " ")]
+               [from-n                          (- (string->number from-ns) 1)]
+               [to-n                            (- (string->number to-ns) 1)]
+               [number                          (string->number number-s)]
+               [from                            (list-ref s from-n)]
+               [to                              (list-ref s to-n)]
+               [elems-move                      (take from number)]
+               [from-new                        (drop from number)]
+               [to-new                          (append elems-move to)])
+              (list-set 
+                (list-set s from-n from-new)
+                to-n to-new)))
 ;(match-let ([(list stacks orders) (by-section (file-contents f))])
 ;    orders)
 
@@ -79,3 +92,6 @@
 
 (match-let ([(list s orders) (by-section (file-contents f))])
     (map car (foldl move stacks (by-line orders))))
+
+(match-let ([(list s orders) (by-section (file-contents f))])
+    (map car (foldl move2 stacks (by-line orders))))
