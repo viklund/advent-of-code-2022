@@ -1,42 +1,28 @@
 #lang racket
 
-(require "util.rkt")
-(define f "05.input")
+(define in (open-input-file "05.input"))
+;(define in (open-input-file "05.sample"))
 
+;; Pick out only the name of the box in the stack, the string for each box is 4
+;; characters wide "[N] ". Where N is the name
+(define (conver l) (let ([en  (lambda (n) (+ (* 4 n) 1))]
+                         [max (/ (+ 1 (string-length l)) 4)])
+                     (map (lambda (x) (string-ref l (en x))) (range max))))
 
-;[Q] [J]                         [H]
-;[G] [S] [Q]     [Z]             [P]
-;[P] [F] [M]     [F]     [F]     [S]
-;[R] [R] [P] [F] [V]     [D]     [L]
-;[L] [W] [W] [D] [W] [S] [V]     [G]
-;[C] [H] [H] [T] [D] [L] [M] [B] [B]
-;[T] [Q] [B] [S] [L] [C] [B] [J] [N]
-;[F] [N] [F] [V] [Q] [Z] [Z] [T] [Q]
-; 1   2   3   4   5   6   7   8   9 
+(define (is-space c) (= (char->integer c) 32))
 
-; I should reverse all of them, so the top element is first
+;; Parse the starting stacks from the file
 (define stacks
-  (map reverse
-    (list '(F T C L R P G Q)
-          '(N Q H W R F S J)
-          '(F B H W P M Q)
-          '(V S T D F)
-          '(Q L D W V F Z)
-          '(Z C L S)
-          '(Z B M V D F)
-          '(T J B)
-          '(Q N B G L S P H))))
+  (let* ([pre (drop-right (for/list ([l (in-lines in)])
+                                    #:break (= (string-length l) 0) ;; Rest of the file is orders
+                                    (conver l))
+                          1)]
+         [num (length (car pre))])
+    (for/list ([stack-n (range num)])
+              (filter (lambda (n) (not (is-space n)))
+                      (for/list ([idx (range (length pre))])
+                                (list-ref (list-ref pre idx) stack-n))))))
 
-;    [D]    
-;[N] [C]    
-;[Z] [M] [P]
-; 1   2   3 
-
-;(define stacks
-;  (map reverse
-;    (list '(Z N)
-;          '(M C D)
-;          '(P))))
 
 (struct move (number from to))
 
@@ -47,31 +33,28 @@
                [number                              (string->number number-s)])
              (move number from-n to-n)))
 
-(define (make-move m s)
-  (match-let* ([from                            (list-ref s (move-from m))]
-               [to                              (list-ref s (move-to m))]
-               [elems-move                      (take from (move-number m))]
-               [from-new                        (drop from (move-number m))]
-               [to-new                          (append (reverse elems-move) to)])
-              (list-set 
-                (list-set s (move-from m) from-new)
-                (move-to m) to-new)))
+(define (make-move1 m s)
+  (let* ([from       (list-ref s (move-from m))]
+         [to         (list-ref s (move-to m))]
+         [elems-move (take from (move-number m))]
+         [from-new   (drop from (move-number m))]
+         [to-new     (append (reverse elems-move) to)])
+        (list-set
+          (list-set s (move-from m) from-new)
+          (move-to m) to-new)))
 
 (define (make-move2 m s)
-  (match-let* ([from                            (list-ref s (move-from m))]
-               [to                              (list-ref s (move-to m))]
-               [elems-move                      (take from (move-number m))]
-               [from-new                        (drop from (move-number m))]
-               [to-new                          (append elems-move to)])
-              (list-set 
-                (list-set s (move-from m) from-new)
-                (move-to m) to-new)))
+  (let* ([from       (list-ref s (move-from m))]
+         [to         (list-ref s (move-to m))]
+         [elems-move (take from (move-number m))]
+         [from-new   (drop from (move-number m))]
+         [to-new     (append elems-move to)])
+        (list-set
+          (list-set s (move-from m) from-new)
+          (move-to m) to-new)))
 
-(define (stringify l)
-  (foldr string-append "" (map symbol->string l)))
-
-(match-let ([(list s orders) (by-section (file-contents f))])
-    (stringify (map car (foldl make-move stacks (map parse-line (by-line orders))))))
-
-(match-let ([(list s orders) (by-section (file-contents f))])
-    (stringify (map car (foldl make-move2 stacks (map parse-line (by-line orders))))))
+;; Run the program
+(match-let ([orders (port->lines in)]
+            [show   (lambda (x) (displayln (list->string x)))])
+    (show (map car (foldl make-move1 stacks (map parse-line orders))))
+    (show (map car (foldl make-move2 stacks (map parse-line orders)))))
