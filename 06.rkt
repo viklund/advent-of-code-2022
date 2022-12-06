@@ -9,7 +9,7 @@
     (= n (length (remove-duplicates (string->list t))))))
 
 (define (first-instance-n n l)
-  (+ n (findf (lambda (x) (all-different-n n l x)) (range (- (string-length l) (dec n))))))
+  (+ n (findf (curry all-different-n n l) (range (- (string-length l) (dec n))))))
 
 (first-instance-n 4 all)
 (first-instance-n 14 all)
