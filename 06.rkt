@@ -8,5 +8,8 @@
   (let* ([t (substring s pos (+ pos n))])
     (= n (length (remove-duplicates (string->list t))))))
 
-(displayln (+  4 (findf (lambda (x) (all-different-n  4 all x)) (range (- (string-length all)  3)))))
-(displayln (+ 14 (findf (lambda (x) (all-different-n 14 all x)) (range (- (string-length all) 13)))))
+(define (first-instance-n n l)
+  (+ n (findf (lambda (x) (all-different-n n l x)) (range (- (string-length l) (dec n))))))
+
+(first-instance-n 4 all)
+(first-instance-n 14 all)

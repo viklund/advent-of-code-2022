@@ -4,6 +4,8 @@
 (provide sum)
 (provide by-section)
 (provide by-line)
+(provide inc)
+(provide dec)
 
 (define (file-contents f)
   (port->string (open-input-file f) #:close? #t))
@@ -14,3 +16,6 @@
 (define (by-section f) (string-split f "\n\n"))
 
 (define (by-line f) (string-split f "\n"))
+
+(define (dec n) (- n 1))
+(define (inc n) (+ n 1))
