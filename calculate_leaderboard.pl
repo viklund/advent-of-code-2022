@@ -11,7 +11,8 @@ use feature 'say';
 
 my $contents = '';
 
-while (<>) {
+open my $IN, '<', 'leaderboard' or die "Can't find <leaderboard>";
+while (<$IN>) {
     $contents .= $_;
 }
 $contents = encode('utf-8', $contents);
